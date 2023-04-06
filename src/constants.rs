@@ -9,7 +9,7 @@ pub const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 pub const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
 pub const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 pub const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-
+// comment
 // Neural Network Game
 pub const NUM_INDIVIDUALS: u32 = 1000;
 pub const NUM_GAMES_NN: u32 = 20;
