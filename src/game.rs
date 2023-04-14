@@ -9,7 +9,7 @@ pub static NAME: &str = "Snake v01";
 
 // Board Dimensions
 pub const BOARD_WIDTH: u8 = 10;
-pub const BOARD_HEIGHT: u8 = 10;
+pub const BOARD_HEIGHT: u8 = 10; // --> here
 
 // Colours
 pub const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
@@ -256,10 +256,6 @@ impl Game {
             }
         }
     }
-
-
-
-
 
     pub fn get_direction_from_index(&self, index: usize) -> Direction {
         match index {

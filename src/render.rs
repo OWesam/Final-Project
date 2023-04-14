@@ -24,7 +24,7 @@ impl Render {
         Render {
             window: WindowSettings::new(
                 NAME,
-                [BOARD_WIDTH as u32 * BLOCK_SIZE, BOARD_HEIGHT as u32 * BLOCK_SIZE],
+                [BOARD_WIDTH as u32 * BLOCK_SIZE * 3, BOARD_HEIGHT as u32 * BLOCK_SIZE * 3], 
             )
             .graphics_api(OpenGL::V3_2)
             .vsync(true)
