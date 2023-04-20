@@ -44,6 +44,7 @@ pub const DISCOUNT_FACTOR: f64 = 0.9; // Seems to make not much difference
 
 
 
+
 #[derive(Copy, Clone)]
 pub struct Position {
     pub x: u8,
@@ -165,6 +166,8 @@ impl Snake {
             let next_pos = self.next_head_pos();
             if self.check_collide_wall(next_pos) || self.check_collide_body(next_pos) {
                 self.alive = false;
+                //Alive = false;
+
             } else if self.check_eat_food(next_pos, *food_pos) {
                 self.eat_next(food_pos);
                 self.eat = true;

@@ -13,6 +13,13 @@ use piston::input::keyboard::Key;
 use piston::input::{Button, PressEvent, RenderArgs, RenderEvent, UpdateEvent}; //UpdateArgs
 use piston::window::WindowSettings;
 
+
+extern crate rand;
+use rand::Rng;
+use rand::distributions::{Distribution, Uniform};
+use std::{thread, time};
+
+
 pub struct Render {
     window: GlutinWindow,
     events: Events,
@@ -53,6 +60,48 @@ impl Render {
                 self.handle_events(button, &mut game);
             }
         }
+    }
+    pub fn run_random(&mut self) {
+        let mut game = Game::new();
+        game.init();
+        let mut rng = rand::thread_rng();
+       
+        while let Some(e) = self.events.next(&mut self.window) {
+            if let Some(args) = e.render_args() {
+                self.render_game(&args, &game);
+            }
+
+            if let Some(args) = e.update_args() {
+                game.next_tick(args.dt);
+            }
+            // if !Game::Alive {
+            //     game.init();
+            // }
+            // if let Some(button) = e.press_args() {
+            //     match button {
+            //         Button::Keyboard(key) => match key {
+            //             Key::Space => game.init(),
+            //             _ => {}
+            //         },
+            //         _ => {}
+            //     }
+               
+            // }
+          
+            let die = Uniform::from(0..4);
+            let throw = die.sample(&mut rng);
+            match throw {
+                0=>self.handle_events(Button::Keyboard(Key::Up), &mut game),
+                1=>self.handle_events(Button::Keyboard(Key::Down), &mut game),
+                2=>self.handle_events(Button::Keyboard(Key::Left), &mut game),
+                3=>self.handle_events(Button::Keyboard(Key::Right), &mut game),
+                _=>self.handle_events(Button::Keyboard(Key::Space), &mut game),
+
+            }
+            //thread::sleep(time::Duration::from_millis(50));
+           
+        }
+        
     }
 
     
