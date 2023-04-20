@@ -1,10 +1,14 @@
+
+// Learning algorithm class
 extern crate rand;
+use rand::Rng;
 
 pub struct Brain {
-    fn random() {
-        let mut x = rng.gen_range(0..2);
-        
-
-    }
+    
 }
 
+
+impl Brain{
+    pub fn random() {
+    }
+}

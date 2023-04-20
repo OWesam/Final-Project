@@ -1,12 +1,13 @@
 mod constants;
 mod game;
-
+mod brain;
 mod render;
 
 extern crate rayon;
 
 use rayon::prelude::*;
 
+use crate::brain::Brain;
 use crate::constants::*;
 use crate::game::{Game};
 
@@ -19,6 +20,7 @@ enum GameType {
 }
 
 fn main() {
+    
     render_game();
 }
 
@@ -37,5 +39,6 @@ fn main() {
 
 fn render_game() {
     let mut render = Render::new();
+    Brain::random();
     render.run();
 }

@@ -1,10 +1,23 @@
+//neural network class
+
+pub mod matrix;
 
 
+extern crate rand;
 
-pub struct network {
+pub struct hidden_layer {
     // layers;
-
+    weights : Matrix,
+    biases : Matrix,
+    output : Matrix,
 }
+
+impl hidden_layer {
+    pub fn init(Self, num_inputs: u32, num_neurons: u32)  {
+
+    }
+}
+
 
 impl NN {
     pub fn new() -> NN {
@@ -25,4 +38,9 @@ impl NN {
             false
         }
     }
+
+    // pub fn calculate_fitness() -> u64 {
+    //     let fitness = 1000 * num_food + num_moves;
+    //     fitness
+    // }
 }
