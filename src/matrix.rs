@@ -107,6 +107,7 @@ impl Matrix {
 		res
 	}
 
+	// apply each element of a matrix to a function and update the matrix with the results
 	pub fn map(&self, function: &dyn Fn(f64) -> f64) -> Matrix {
 		Matrix::from(
 			(self.data)

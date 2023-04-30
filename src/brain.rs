@@ -1,5 +1,6 @@
-
 // Learning algorithm class
+
+
 extern crate rand;
 use rand::Rng;
 
