@@ -4,10 +4,10 @@
 /* 
     Inputs: 
         if there is a body part or wall on the left side of the snake’s head (0 or 1 value) 
-        if there is body part or wall in front of the snake (0 or value)
+        if there is body part or wall in front of the snake (0 or 1 value)
         if there is a body part or wall on the right side of the snake’s head (0 or 1 value) 
         food position relative to the snake
-    
+        
     For simplicity: one hidden layer with 6 neurons
 
     Outputs: (outputs are based on snake's current direction)
@@ -94,28 +94,38 @@ impl NN<'_> {
         for i in (0..self.layers.len() - 1).rev() {
             gradients = gradients.dot_multiply(&errors).map(&|x| x * self.learning_rate);
             self.weights[i] = self.weights.add(gradients.multiply(&self.data[i].transpose()));
-            self.biases[i] = self.biases.add(gradients);
+            self.biases[i] = self.biases.add(&gradients);
 
+            errors = self.weights[i].transpose().multiply(&errors);
+			gradients = self.data[i].map(self.activation.derivative);
         }
     }
 
-    pub fn learn() {
-
+    pub fn learn(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs: u16) {
+        for i in 1..=epochs {
+			if epochs < 100 || i % (epochs / 100) == 0 {
+				println!("Epoch {} of {}", i, epochs);
+			}
+			for j in 0..inputs.len() {
+				let outputs = self.feed_forward(inputs[j].clone());
+				self.back_propogate(outputs, targets[j].clone());
+			}
+		}
     }
 
-    fn mutate(&mut self) {
-        for layer in &mut self.layers {
-            layer.mutate();
-        }
-    }
+    // fn mutate(&mut self) {
+    //     for layer in &mut self.layers {
+    //         layer.mutate();
+    //     }
+    // }
 
-    pub fn add(&mut self, layer: Layer) -> bool {
-        if self.layers.is_empty() || self.layers.last().unwrap().num_neurons == layer.num_inputs {
-            self.layers.push(layer);
-            true
-        } else {
-            false
-        }
-    }
+    // pub fn add(&mut self, layer: Layer) -> bool {
+    //     if self.layers.is_empty() || self.layers.last().unwrap().num_neurons == layer.num_inputs {
+    //         self.layers.push(layer);
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
 }

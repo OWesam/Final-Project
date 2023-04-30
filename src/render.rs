@@ -55,6 +55,12 @@ impl Render {
         }
     }
 
+    pub fn run_network(&mut self)   {
+        let mut game = Game::new();
+        game.init();
+        
+    }
+
     
     fn handle_events(&mut self, button: Button, game: &mut Game) {
         match button {

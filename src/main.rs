@@ -40,5 +40,6 @@ fn main() {
 fn render_game() {
     let mut render = Render::new();
     Brain::random();
-    render.run();
+    //render.run();
+    render.run_network();
 }
