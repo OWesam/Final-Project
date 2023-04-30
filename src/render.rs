@@ -98,7 +98,7 @@ impl Render {
                 _=>self.handle_events(Button::Keyboard(Key::Space), &mut game),
 
             }
-            //thread::sleep(time::Duration::from_millis(50));
+            thread::sleep(time::Duration::from_millis(50));
            
         }
         
