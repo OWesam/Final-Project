@@ -107,6 +107,8 @@ pub struct Snake {
     pub direction: Direction,
     pub alive: bool,
     pub eat: bool,
+    pub reward: i32,
+    pub frame_iteration: usize,
 }
 
 impl Snake {
@@ -129,6 +131,8 @@ impl Snake {
             direction: Direction::RIGHT,
             alive: true,
             eat: false,
+            reward: 0,
+            frame_iteration: 0,
         }
     }
 
@@ -140,18 +144,22 @@ impl Snake {
         }
     }
 
-    fn perform_next(&mut self, food_pos: &mut Position) {
+    fn perform_next(&mut self, food_pos: &mut Position) -> i32 {
+        self.frame_iteration = self.frame_iteration + 1;
         if self.alive {
             let next_pos = self.next_head_pos();
-            if self.check_collide_wall(next_pos) || self.check_collide_body(next_pos) {
+            if self.check_collide_wall(next_pos) || self.check_collide_body(next_pos) || self.frame_iteration > 100 * self.body.len() {
                 self.alive = false;
+                self.reward = -10;
             } else if self.check_eat_food(next_pos, *food_pos) {
                 self.eat_next(food_pos);
                 self.eat = true;
+                self.reward = 10;
             } else {
                 self.move_next();
             }
         }
+        self.reward
     }
 
     fn next_head_pos(&mut self) -> Position {
@@ -211,8 +219,6 @@ impl Game {
             },
             time: 0,
             score: 0,
-            // num_moves: 0,
-            // num_food: 0,
         }
     }
 
@@ -221,9 +227,26 @@ impl Game {
         self.food.position = self.get_food_pos();
         self.time = 0;
         self.score = 0;
-        // self.num_moves = 0;
-        // self.num_food = 0;
+        self.reset();
     }
+
+    // agent reset game
+
+    pub fn reset(&mut self) {
+        self.snake = Snake::new();
+        self.food.position = self.get_food_pos();
+        self.time = 0;
+        self.score = 0; 
+        self.snake.frame_iteration = 0;
+    }
+
+    // reward
+    
+    // change play function so that it takes an action and computes the direction
+
+    // keep track of game iteration
+
+    //
 
     pub fn update(&mut self, dir: Direction) {
         self.snake.update(dir);

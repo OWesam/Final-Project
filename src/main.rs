@@ -41,5 +41,5 @@ fn render_game() {
     let mut render = Render::new();
     Brain::random();
     //render.run();
-    render.run_network();
+    render.run_network(&vec![0,1,3]);
 }

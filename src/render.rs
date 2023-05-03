@@ -17,6 +17,7 @@ pub struct Render {
     window: GlutinWindow,
     events: Events,
     gl: GlGraphics,
+    // maybe frame_iteration here
 }
 
 impl Render {
@@ -36,7 +37,26 @@ impl Render {
         }
     }
 
-    pub fn run(&mut self) {
+    // pub fn run(&mut self) {
+    //     let mut game = Game::new();
+    //     game.init();
+
+    //     while let Some(e) = self.events.next(&mut self.window) {
+    //         if let Some(args) = e.render_args() {
+    //             self.render_game(&args, &game);
+    //         }
+
+    //         if let Some(args) = e.update_args() {
+    //             game.next_tick(args.dt);
+    //         }
+
+    //         if let Some(button) = e.press_args() {
+    //             self.handle_events(button, &mut game);
+    //         }
+    //     }
+    // }
+
+    pub fn run_network(&mut self, action: &Vec<usize>)   {
         let mut game = Game::new();
         game.init();
 
@@ -50,28 +70,53 @@ impl Render {
             }
 
             if let Some(button) = e.press_args() {
-                self.handle_events(button, &mut game);
+                self.handle_network_events(button, &mut game, action);
             }
         }
     }
-
-    pub fn run_network(&mut self)   {
-        let mut game = Game::new();
-        game.init();
-        
-    }
-
     
-    fn handle_events(&mut self, button: Button, game: &mut Game) {
+    // fn handle_events(&mut self, button: Button, game: &mut Game) {
+    //     match button {
+    //         Button::Keyboard(key) => match key {
+    //             Key::Up => game.update(Direction::UP),
+    //             Key::Down => game.update(Direction::DOWN),
+    //             Key::Left => game.update(Direction::LEFT),
+    //             Key::Right => game.update(Direction::RIGHT),
+    //             Key::Space => game.init(),
+    //             _ => {}
+    //         },
+    //         _ => {}
+    //     }
+    // }
+    
+    fn handle_network_events(&mut self, button: Button, game: &mut Game, action: &Vec<usize>) { // *tofix
         match button {
             Button::Keyboard(key) => match key {
-                Key::Up => game.update(Direction::UP),
-                Key::Down => game.update(Direction::DOWN),
-                Key::Left => game.update(Direction::LEFT),
-                Key::Right => game.update(Direction::RIGHT),
                 Key::Space => game.init(),
                 _ => {}
             },
+            _ => {}
+        }
+
+        let mut clock_wise = vec![Direction::RIGHT, Direction::DOWN, Direction::LEFT, Direction::UP];
+        let index = clock_wise.iter().position(|&r| r == game.snake.direction).unwrap();
+
+        let one_zero_zero = vec![1,0,0];
+        let zero_one_zero = vec![0,1,0];
+        let zero_zero_one = vec![0,0,1];
+
+        let mut next_index = 0;
+
+        match action {
+            one_zero_zero => game.update(clock_wise[index]),
+            zero_one_zero => {
+                next_index = (index + 1) % 4;
+                game.update(clock_wise[next_index]);
+            },
+            zero_zero_one => {
+                next_index = (index - 1) % 4;
+                game.update(clock_wise[next_index]);
+            }
             _ => {}
         }
     }
