@@ -70,7 +70,7 @@ impl Render {
             }
 
             if let Some(button) = e.press_args() {
-                let act = self.handle_network_events(button, &mut game, action);
+                let act = self.handle_network_events(&mut game, action);
             }
         }
     }
@@ -89,14 +89,7 @@ impl Render {
     //     }
     // }
     
-    fn handle_network_events(&mut self, button: Button, game: &mut Game, action: &Vec<usize>) -> Vec<usize> { 
-        match button {
-            Button::Keyboard(key) => match key {
-                Key::Space => game.init(),
-                _ => {}
-            },
-            _ => {}
-        }
+    fn handle_network_events(&mut self, game: &mut Game, action: &Vec<usize>) { 
 
         let mut clock_wise = vec![Direction::RIGHT, Direction::DOWN, Direction::LEFT, Direction::UP];
         let index = clock_wise.iter().position(|&r| r == game.snake.direction).unwrap();
@@ -119,7 +112,6 @@ impl Render {
             }
             _ => {}
         }
-        to_return
     }
 
     fn render_game(&mut self, args: &RenderArgs, game: &Game) {

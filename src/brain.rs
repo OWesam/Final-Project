@@ -20,6 +20,7 @@ pub struct Brain {
     memory: VecDeque<(Vec<u32>, Vec<u32>, u32,Vec<u32>, Vec<bool>)>,
     model: NN,
     trainer: Trainer,
+    render: Render,
 }
 
 
@@ -32,6 +33,7 @@ impl Brain {
             memory: VecDeque::with_capacity(MAX_MEMORY),
             model: NN::new(vec![11,256,3], SIGMOID, LR),
             trainer: Trainer::new(model, LR, self.gamma),
+            render: Render::new(),
         }
     }
 
@@ -146,9 +148,9 @@ impl Brain {
         while true {
             let state_old = brain.get_state(&game);
             let final_move = brain.get_action(state_old);
-            let (reward,still_playing) = game.snake.perform_next(final_move);
+            let (reward,still_playing) = game.snake.perform_next();
+            self.render.handle_network_events(&game, final_move);
             let state_new = brain.get_state(&game);
-
             done.push(still_playing);
 
             brain.train_short_memory(state_old, final_move, reward, state_new, done);
