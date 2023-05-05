@@ -19,8 +19,9 @@
 
 use std::thread;
 
-use Super::matrix::Matrix;
-pub mod matrix;
+use crate::matrix::Matrix;
+use crate::activation::Activation;
+
 
 extern crate rand;
 
@@ -31,7 +32,7 @@ pub struct NN<'a> {
     biases : Vec<Matrix>,
     data : Vec<Matrix>,
     activation: Activation<'a>, 
-    learning_rate,
+    learning_rate: f64,
 }
 
 impl NN<'_> {
@@ -48,7 +49,7 @@ impl NN<'_> {
             layers: Vec::new(),
             weights,
             biases,
-            data: Vec![],
+            data: vec![],
             activation,
             learning_rate,
         }
@@ -56,16 +57,16 @@ impl NN<'_> {
 
 
     // move forward in neural network
-    pub fn feed_forwards(&self, inputs: Vec<u32>) -> Vec<u32> {
-        if inputs.length != self.layers[0] {
+    pub fn feed_forwards(&self, inputs: Vec<f64>) -> Vec<f64> {
+        if inputs.len() != self.layers[0] {
             panic!("Input length differnet than the input number of neurons");
         }
     
-        let mut current = Matrix::from(vec![inputs].transpose()); 
+        let mut current = Matrix::from(vec![inputs]).transpose(); 
         self.data = vec![current.clone()];
         thread::spawn(|| {
-            for i in 0..self.layers.length - 1 {
-                currrent = self.weights[i]
+            for i in 0..self.layers.len() - 1 {
+                current = self.weights[i]
                     .multiply(&current)
                     .add(&self.biases[i])
                     .map(self.activation.function);
@@ -79,22 +80,22 @@ impl NN<'_> {
     }
 
     // move to backwards in network  
-    pub fn back_propagate(&self, outputs: Vec<f64>, targets: Vec<f64>)   { // -- compare to correct output and provide feedback
-        if target.len() != self.layers[self.layers.len() - 1] {
+    pub fn back_propagate(&self, outputs: Vec<u32>, targets: Vec<u32>)   { // -- compare to correct output and provide feedback
+        if targets.len() != self.layers[self.layers.len() - 1] {
             panic!("target length different than output length");
         }
 
         // get errors after comparing to correct output
-        let mut parsed = Matrix::from(vec![outputs]);
-        let mut errors = Matrix::from(vec![targets]).subtract(parsed);
+        let mut parsed = Matrix::from(vec![outputs as f64]);
+        let mut errors = Matrix::from(vec![targets as f64]).subtract(&parsed);
 
         // undo activation function
         let mut gradients = parsed.map(self.activation.derivative);
 
         for i in (0..self.layers.len() - 1).rev() {
             gradients = gradients.dot_multiply(&errors).map(&|x| x * self.learning_rate);
-            self.weights[i] = self.weights.add(gradients.multiply(&self.data[i].transpose()));
-            self.biases[i] = self.biases.add(&gradients);
+            self.weights[i] = self.weights[i].add(&gradients.multiply(&self.data[i].transpose()));
+            self.biases[i] = self.biases[i].add(&gradients);
 
             errors = self.weights[i].transpose().multiply(&errors);
 			gradients = self.data[i].map(self.activation.derivative);
@@ -116,28 +117,28 @@ impl NN<'_> {
    
 }
 
-pub struct Trainer {
-    model: Model,
-    lr: u32,
-    gamma: u32,
+pub struct Trainer<'a> {
+    model: NN<'a>,
+    lr: f64,
+    gamma: f64,
 }
 
-impl Trainer {
-    pub fn new(self, model: NN, lr: u32, gamma: u32) -> Trainer {
+impl Trainer<'_> {
+    pub fn new(model: NN, lr: f64, gamma: f64) -> Trainer {
         Trainer {
             model,
             lr,
             gamma,
         }
     }
-    pub fn train_step(self, states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<u32>, next_state: Vec<Vec<u32>>, done: Vec<Vec<bool>>) {
-        let prediction = self.model.feed_forward(state);
+    pub fn train_step(&self, states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<i32>, next_state: Vec<Vec<u32>>, done: Vec<bool>) {
+        let prediction = self.model.feed_forwards(states);
         let target = prediction.clone();
-        for i in 0..states.size() {
+        for i in 0..states.len() {
             let q_new = rewards[i];
             
-            if !done[idx] {
-                q_new = rewards[i] + self.gamma * self.model.feed_forward(next_state[i]).iter().max().unwrap();
+            if !done[i] {
+                q_new = (rewards[i] as f64 + self.gamma * (*(self.model.feed_forwards(next_state[i]).iter().max().unwrap()) as f64)) as i32;
             }
             target[i][actions[i].iter().max().unwrap()] = q_new;
         }

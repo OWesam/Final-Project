@@ -3,7 +3,12 @@ mod game;
 mod brain;
 mod render;
 
+pub mod nn;
+pub mod matrix;
+pub mod activation;
+
 extern crate rayon;
+
 
 use rayon::prelude::*;
 

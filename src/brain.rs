@@ -1,6 +1,11 @@
 // Learning algorithm class
 
-use crate::nn::{NN,Trainer};
+// use nn::NN;
+use super::{nn::NN, nn::Trainer};
+
+use crate::Render;
+
+use crate::activation::SIGMOID;
 
 use crate::game::{Block, Direction, Game};
 use std::collections::VecDeque;
@@ -13,18 +18,18 @@ pub const BATCH_SIZE : usize = 1000;
 pub const LR : f64 = 0.001;
 
 
-pub struct Brain {
+pub struct Brain<'a> {
     num_games: u32,
     epsilon: u32,
-    gamma: u32,
-    memory: VecDeque<(Vec<u32>, Vec<u32>, u32,Vec<u32>, Vec<bool>)>,
-    model: NN,
-    trainer: Trainer,
+    gamma: f64,
+    memory: VecDeque<(Vec<u32>, Vec<u32>, i32,Vec<u32>, bool)>,
+    model: NN<'a>,
+    trainer: Trainer<'a>,
     render: Render,
 }
 
 
-impl Brain {
+impl Brain<'_> {
     pub fn new(&self) -> Brain {
         Brain {
             num_games: 0,
@@ -32,7 +37,7 @@ impl Brain {
             gamma: 0.9,
             memory: VecDeque::with_capacity(MAX_MEMORY),
             model: NN::new(vec![11,256,3], SIGMOID, LR),
-            trainer: Trainer::new(model, LR, self.gamma),
+            trainer: Trainer::new(self.model, LR, self.gamma),
             render: Render::new(),
         }
     }
@@ -82,7 +87,7 @@ impl Brain {
         state
     }
 
-    pub fn remember(self, state: Vec<u32>, action: Vec<u32>, reward: u32, next_state: Vec<u32>, done: Vec<bool>)   {
+    pub fn remember(self, state: Vec<u32>, action: Vec<u32>, reward: i32, next_state: Vec<u32>, done: bool)   {
         let (x, y, z, f, g) = (state, action, reward, next_state, done);
         self.memory.push_back((x,y,z,f,g));
     }
@@ -112,7 +117,7 @@ impl Brain {
         self.trainer.train_step(states, actions, rewards, next_state, done);
     }
 
-    pub fn train_short_memory(self, states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<u32>, next_state: Vec<Vec<u32>>, done: Vec<Vec<bool>>)  {
+    pub fn train_short_memory(&self,states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<i32>, next_state: Vec<Vec<u32>>, done: Vec<bool>)  {
         self.trainer.train_step(states, actions, rewards, next_state, done);
     }
 
@@ -126,11 +131,11 @@ impl Brain {
             rand_move = rng.gen_range(0,2);
             final_move[rand_move] = 1;
         } else {
-            let prediction = self.model.feed_forward(state);
+            let prediction = self.model.feed_forwards(state);
             let temp = prediction.iter().max();
             rand_move = match temp {
                 None => panic!(""),
-                Some(i) => i
+                Some(i) => *i as usize
             };
             final_move[rand_move] = 1;
         }
@@ -138,23 +143,33 @@ impl Brain {
         final_move
     }
 
-    pub fn train() {
+    pub fn train(&self) {
         let mut scores : Vec<u32> = Vec::new();
         let mut total_score = 0;
         let mut record = 0;
-        let mut brain = Brain::new();
+        let mut brain = Brain::<'_>::new(&self);
         let mut game = Game::new();
         let done = Vec::new();
+        let states_old = Vec::new();
+        let final_moves = Vec::new();
+        let rewards = Vec::new();
+        let states_new = Vec::new();
+        let mut i = 0;
+
         while true {
             let state_old = brain.get_state(&game);
+            states_old.push(state_old);
             let final_move = brain.get_action(state_old);
+            final_moves.push(final_move);
             let (reward,still_playing) = game.snake.perform_next();
-            self.render.handle_network_events(&game, final_move);
+            rewards.push(reward);
+            self.render.handle_network_events(& mut game, final_move);
             let state_new = brain.get_state(&game);
+            states_new.push(state_new);
             done.push(still_playing);
 
-            brain.train_short_memory(state_old, final_move, reward, state_new, done);
-            brain.remember(state_old, final_move, reward.try_into().unwrap(), state_new, done);
+            self.train_short_memory(states_old, final_moves, rewards, states_new, done);
+            brain.remember(state_old, final_move, reward.try_into().unwrap(), state_new, done[i]);
 
             if !game.snake.alive {
                 game.reset();
@@ -162,7 +177,7 @@ impl Brain {
                 brain.num_games = brain.num_games + 1;
                 println!("game,{}", brain.num_games);
             }
-
+            i += 1;
         }
     }
 

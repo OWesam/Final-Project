@@ -89,7 +89,7 @@ impl Render {
     //     }
     // }
     
-    fn handle_network_events(&mut self, game: &mut Game, action: &Vec<usize>) { 
+    pub fn handle_network_events(&mut self, game: &mut Game, action: &Vec<usize>) { 
 
         let mut clock_wise = vec![Direction::RIGHT, Direction::DOWN, Direction::LEFT, Direction::UP];
         let index = clock_wise.iter().position(|&r| r == game.snake.direction).unwrap();
