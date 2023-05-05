@@ -70,7 +70,7 @@ impl Render {
             }
 
             if let Some(button) = e.press_args() {
-                self.handle_network_events(button, &mut game, action);
+                let act = self.handle_network_events(button, &mut game, action);
             }
         }
     }
@@ -89,7 +89,7 @@ impl Render {
     //     }
     // }
     
-    fn handle_network_events(&mut self, button: Button, game: &mut Game, action: &Vec<usize>) { // *tofix
+    fn handle_network_events(&mut self, button: Button, game: &mut Game, action: &Vec<usize>) -> Vec<usize> { 
         match button {
             Button::Keyboard(key) => match key {
                 Key::Space => game.init(),
@@ -107,7 +107,7 @@ impl Render {
 
         let mut next_index = 0;
 
-        match action {
+        let to_return = match action {
             one_zero_zero => game.update(clock_wise[index]),
             zero_one_zero => {
                 next_index = (index + 1) % 4;
@@ -119,6 +119,7 @@ impl Render {
             }
             _ => {}
         }
+        to_return
     }
 
     fn render_game(&mut self, args: &RenderArgs, game: &Game) {

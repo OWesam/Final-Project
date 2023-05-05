@@ -44,7 +44,7 @@ impl Position {
         pos
     }
 
-    fn offset(&mut self, x: i8, y: i8) {
+    pub fn offset(&mut self, x: i8, y: i8) {
         self.x = Position::calc_offset(self.x, x, BOARD_WIDTH);
         self.y = Position::calc_offset(self.y, y, BOARD_HEIGHT);
     }
@@ -144,7 +144,7 @@ impl Snake {
         }
     }
 
-    fn perform_next(&mut self, food_pos: &mut Position) -> i32 {
+    pub fn perform_next(&mut self, food_pos: &mut Position) -> (i32, bool) {
         self.frame_iteration = self.frame_iteration + 1;
         if self.alive {
             let next_pos = self.next_head_pos();
@@ -159,7 +159,7 @@ impl Snake {
                 self.move_next();
             }
         }
-        self.reward
+        (self.reward, self.alive)
     }
 
     fn next_head_pos(&mut self) -> Position {
@@ -173,11 +173,11 @@ impl Snake {
         current_head
     }
 
-    fn check_collide_wall(&self, next_pos: Position) -> bool {
+    pub fn check_collide_wall(&self, next_pos: Position) -> bool {
         self.body[0].position == next_pos
     }
 
-    fn check_collide_body(&self, pos: Position) -> bool {
+    pub fn check_collide_body(&self, pos: Position) -> bool {
         self.body.iter().any(|block| block.position == pos)
     }
 
@@ -274,7 +274,7 @@ impl Game {
         }
     }
 
-    fn get_food_pos(&mut self) -> Position {
+    pub fn get_food_pos(&mut self) -> Position {
         let mut rng = rand::thread_rng();
         loop {
             let pos = Position {

@@ -56,7 +56,7 @@ impl NN<'_> {
 
 
     // move forward in neural network
-    pub fn feed_forwards(&self, inputs: Vec<f64>) -> Vec<f64> {
+    pub fn feed_forwards(&self, inputs: Vec<u32>) -> Vec<u32> {
         if inputs.length != self.layers[0] {
             panic!("Input length differnet than the input number of neurons");
         }
@@ -101,31 +101,47 @@ impl NN<'_> {
         }
     }
 
-    pub fn learn(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs: u16) {
-        for i in 1..=epochs {
-			if epochs < 100 || i % (epochs / 100) == 0 {
-				println!("Epoch {} of {}", i, epochs);
-			}
-			for j in 0..inputs.len() {
-				let outputs = self.feed_forward(inputs[j].clone());
-				self.back_propogate(outputs, targets[j].clone());
-			}
-		}
+    // pub fn learn(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs: u16) {
+    //     for i in 1..=epochs {
+	// 		if epochs < 100 || i % (epochs / 100) == 0 {
+	// 			println!("Epoch {} of {}", i, epochs);
+	// 		}
+	// 		for j in 0..inputs.len() {
+	// 			let outputs = self.feed_forward(inputs[j].clone());
+	// 			self.back_propogate(outputs, targets[j].clone());
+	// 		}
+	// 	}
+    // }
+
+   
+}
+
+pub struct Trainer {
+    model: Model,
+    lr: u32,
+    gamma: u32,
+}
+
+impl Trainer {
+    pub fn new(self, model: NN, lr: u32, gamma: u32) -> Trainer {
+        Trainer {
+            model,
+            lr,
+            gamma,
+        }
     }
-
-    // fn mutate(&mut self) {
-    //     for layer in &mut self.layers {
-    //         layer.mutate();
-    //     }
-    // }
-
-    // pub fn add(&mut self, layer: Layer) -> bool {
-    //     if self.layers.is_empty() || self.layers.last().unwrap().num_neurons == layer.num_inputs {
-    //         self.layers.push(layer);
-    //         true
-    //     } else {
-    //         false
-    //     }
-    // }
-
+    pub fn train_step(self, states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<u32>, next_state: Vec<Vec<u32>>, done: Vec<Vec<bool>>) {
+        let prediction = self.model.feed_forward(state);
+        let target = prediction.clone();
+        for i in 0..states.size() {
+            let q_new = rewards[i];
+            
+            if !done[idx] {
+                q_new = rewards[i] + self.gamma * self.model.feed_forward(next_state[i]).iter().max().unwrap();
+            }
+            target[i][actions[i].iter().max().unwrap()] = q_new;
+        }
+        self.model.back_propagate(prediction, target);
+    }
+    
 }
