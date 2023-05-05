@@ -100,7 +100,7 @@ impl Render {
 
         let mut next_index = 0;
 
-        let to_return = match action {
+        match action {
             one_zero_zero => game.update(clock_wise[index]),
             zero_one_zero => {
                 next_index = (index + 1) % 4;
@@ -111,7 +111,7 @@ impl Render {
                 game.update(clock_wise[next_index]);
             }
             _ => {}
-        }
+        };
     }
 
     fn render_game(&mut self, args: &RenderArgs, game: &Game) {
