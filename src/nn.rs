@@ -64,15 +64,15 @@ impl NN<'_> {
     
         let mut current = Matrix::from(vec![inputs]).transpose(); 
         self.data = vec![current.clone()];
-        thread::spawn(|| {
-            for i in 0..self.layers.len() - 1 {
-                current = self.weights[i]
-                    .multiply(&current)
-                    .add(&self.biases[i])
-                    .map(self.activation.function);
-                self.data.push(current.clone());
-            }
-        });
+        
+        for i in 0..self.layers.len() - 1 {
+            current = self.weights[i]
+                .multiply(&current)
+                .add(&self.biases[i])
+                .map(self.activation.function);
+            self.data.push(current.clone());
+        }
+        
             
         // to_owned -> basically clones data
         current.data[0].to_owned()
@@ -80,14 +80,14 @@ impl NN<'_> {
     }
 
     // move to backwards in network  
-    pub fn back_propagate(&self, outputs: Vec<u32>, targets: Vec<u32>)   { // -- compare to correct output and provide feedback
+    pub fn back_propagate(&self, outputs: Vec<f64>, targets: Vec<f64>)   { // -- compare to correct output and provide feedback
         if targets.len() != self.layers[self.layers.len() - 1] {
             panic!("target length different than output length");
         }
 
         // get errors after comparing to correct output
-        let mut parsed = Matrix::from(vec![outputs as f64]);
-        let mut errors = Matrix::from(vec![targets as f64]).subtract(&parsed);
+        let mut parsed = Matrix::from(vec![outputs ]);
+        let mut errors = Matrix::from(vec![targets ]).subtract(&parsed);
 
         // undo activation function
         let mut gradients = parsed.map(self.activation.derivative);
@@ -131,16 +131,29 @@ impl Trainer<'_> {
             gamma,
         }
     }
-    pub fn train_step(&self, states: Vec<Vec<u32>>, actions: Vec<Vec<u32>>, rewards: Vec<i32>, next_state: Vec<Vec<u32>>, done: Vec<bool>) {
-        let prediction = self.model.feed_forwards(states);
+    pub fn train_step(&self, states: Vec<Vec<f64>>, actions: Vec<Vec<f64>>, rewards: Vec<i32>, next_state: Vec<Vec<f64>>, done: Vec<bool>) {
+        
+        let prediction = self.model.feed_forwards(states[states.len()-1]);
         let target = prediction.clone();
         for i in 0..states.len() {
+            
             let q_new = rewards[i];
             
             if !done[i] {
-                q_new = (rewards[i] as f64 + self.gamma * (*(self.model.feed_forwards(next_state[i]).iter().max().unwrap()) as f64)) as i32;
+                q_new = (rewards[i] as f64 + self.gamma * ((self.model.feed_forwards(next_state[i]).iter().max_by(|a, b| a.partial_cmp(b).unwrap()))).unwrap()) as i32;
             }
-            target[i][actions[i].iter().max().unwrap()] = q_new;
+            //let _ = values.into_iter().min_by(|a, b| a.partial_cmp(b).unwrap());
+            let max = actions[i][0];
+            let max_index = 0;
+            for j in 0..actions[i].len() {
+                if(actions[i][j] > max) {
+                    max = actions[i][j];
+                    max_index = j;
+                }
+            }
+            //let f64_index: u64 =  ((actions[i].into_iter().max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap())) as u64 ;
+            
+            target[max_index] = q_new.into(); //figure this out
         }
         self.model.back_propagate(prediction, target);
     }
