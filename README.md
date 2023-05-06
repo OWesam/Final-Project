@@ -35,6 +35,7 @@ Since we're used to object-oriented methods, it might also be a bit difficult to
 References:
 Python exmaple: https://www.youtube.com/watch?v=L8ypSXwyBds&ab_channel=freeCodeCamp.org
                 https://github.com/patrickloeber/snake-ai-pytorch
+		https://github.com/mathletedev/rust-ml/blob/main/src/matrix.rs
 
 
   
